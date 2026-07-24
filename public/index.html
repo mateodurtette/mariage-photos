@@ -76,7 +76,7 @@
 <body>
 
   <div class="card">
-    <h1>📷 Notre Mariage</h1>
+    <h1>📷 Lauriane & Matéo</h1>
     <p>Ajoutez vos meilleurs souvenirs de la journée à notre album photo !</p>
 
     <div class="form-group">
@@ -85,9 +85,9 @@
     </div>
 
     <div class="upload-btn-wrapper">
-      <button class="btn">📸 Prendre / Choisir une photo</button>
-      <!-- Le tag capture="environment" force l'ouverture de l'appareil photo sur smartphone -->
-      <input type="file" id="photoInput" accept="image/*" capture="environment">
+      <button class="btn">📸 Sélectionner / Prendre des photos</button>
+      <!-- L'attribut 'multiple' permet de choisir plusieurs photos dans la photothèque -->
+      <input type="file" id="photoInput" accept="image/*" multiple>
     </div>
 
     <div id="status"></div>
@@ -99,35 +99,54 @@
     const statusDiv = document.getElementById('status');
 
     photoInput.addEventListener('change', async () => {
-      const file = photoInput.files[0];
-      if (!file) return;
+      const files = photoInput.files;
+      if (!files || files.length === 0) return;
 
-      const formData = new FormData();
-      formData.append('photo', file);
-      formData.append('prenom', prenomInput.value);
+      const totalFiles = files.length;
+      let successCount = 0;
 
       statusDiv.className = 'loading';
-      statusDiv.innerText = 'Envoi de la photo en cours... ⏳';
 
-      try {
-        const response = await fetch('/upload', {
-          method: 'POST',
-          body: formData
-        });
+      // Envoi de chaque photo une par une avec compteur
+      for (let i = 0; i < totalFiles; i++) {
+        const file = files[i];
+        statusDiv.innerText = `Envoi en cours... (${i + 1}/${totalFiles}) ⏳`;
 
-        const result = await response.json();
+        const formData = new FormData();
+        formData.append('photo', file);
+        formData.append('prenom', prenomInput.value);
 
-        if (response.ok && result.success) {
-          statusDiv.className = 'success';
-          statusDiv.innerText = '✅ Photo envoyée avec succès ! Merci !';
-          photoInput.value = ''; // Réinitialise l'input
-        } else {
-          throw new Error(result.error || 'Erreur serveur');
+        try {
+          const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            successCount++;
+          }
+        } catch (err) {
+          console.error('Erreur d\'envoi pour le fichier', file.name, err);
         }
-      } catch (err) {
+      }
+
+      // Affichage du résultat final
+      if (successCount === totalFiles) {
+        statusDiv.className = 'success';
+        statusDiv.innerText = totalFiles > 1 
+          ? `✅ Les ${totalFiles} photos ont été envoyées avec succès ! Merci !`
+          : '✅ Photo envoyée avec succès ! Merci !';
+      } else if (successCount > 0) {
+        statusDiv.className = 'success';
+        statusDiv.innerText = `⚠️ ${successCount}/${totalFiles} photos envoyées avec succès.`;
+      } else {
         statusDiv.className = 'error';
         statusDiv.innerText = '❌ Erreur lors de l\'envoi. Réessayez.';
       }
+
+      photoInput.value = ''; // Réinitialise l'input
     });
   </script>
 
