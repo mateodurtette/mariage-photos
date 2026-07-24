@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lauriane & Matéo - Partagez vos photos !</title>
+  
+  <!-- Logo dans l'onglet du navigateur (favicon) -->
+  <link rel="icon" type="image/png" href="logo.png">
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -26,6 +30,15 @@
       text-align: center;
       border: 1px solid #eae5d9;
     }
+    
+    /* Style pour ajuster le logo en haut de la carte */
+    .logo {
+      max-width: 100px;
+      height: auto;
+      margin-bottom: 15px;
+      border-radius: 50%; /* Optionnel : rend l'image ronde si c'est un carré */
+    }
+
     h1 { font-family: serif; color: #5a4a42; margin-bottom: 8px; font-size: 1.8rem; }
     p { color: #776e65; margin-bottom: 24px; font-size: 0.95rem; }
     .form-group { margin-bottom: 20px; text-align: left; }
@@ -76,7 +89,10 @@
 <body>
 
   <div class="card">
-    <h1>📷 Lauriane & Matéo</h1>
+    <!-- Image du logo ajoutée ici -->
+    <img src="logo.png" alt="Logo Mariage" class="logo">
+    
+    <h1>Lauriane & Matéo</h1>
     <p>Ajoutez vos meilleurs souvenirs de la journée à notre album photo !</p>
 
     <div class="form-group">
@@ -86,7 +102,6 @@
 
     <div class="upload-btn-wrapper">
       <button class="btn">📸 Sélectionner / Prendre des photos</button>
-      <!-- L'attribut 'multiple' permet de choisir plusieurs photos dans la photothèque -->
       <input type="file" id="photoInput" accept="image/*" multiple>
     </div>
 
@@ -107,7 +122,6 @@
 
       statusDiv.className = 'loading';
 
-      // Envoi de chaque photo une par une avec compteur
       for (let i = 0; i < totalFiles; i++) {
         const file = files[i];
         statusDiv.innerText = `Envoi en cours... (${i + 1}/${totalFiles}) ⏳`;
@@ -132,7 +146,6 @@
         }
       }
 
-      // Affichage du résultat final
       if (successCount === totalFiles) {
         statusDiv.className = 'success';
         statusDiv.innerText = totalFiles > 1 
@@ -146,7 +159,7 @@
         statusDiv.innerText = '❌ Erreur lors de l\'envoi. Réessayez.';
       }
 
-      photoInput.value = ''; // Réinitialise l'input
+      photoInput.value = '';
     });
   </script>
 
