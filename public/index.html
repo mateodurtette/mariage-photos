@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notre Mariage - Partagez vos photos !</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #fdfbf7;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .card {
+      background: #ffffff;
+      padding: 30px 20px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      border: 1px solid #eae5d9;
+    }
+    h1 { font-family: serif; color: #5a4a42; margin-bottom: 8px; font-size: 1.8rem; }
+    p { color: #776e65; margin-bottom: 24px; font-size: 0.95rem; }
+    .form-group { margin-bottom: 20px; text-align: left; }
+    label { display: block; font-size: 0.85rem; color: #5a4a42; margin-bottom: 6px; font-weight: 600; }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+    }
+    .upload-btn-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+    .btn {
+      border: none;
+      color: white;
+      background: #8b7355;
+      padding: 16px 20px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      width: 100%;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:active { background: #6e5a42; }
+    .upload-btn-wrapper input[type=file] {
+      font-size: 100px;
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      cursor: pointer;
+      height: 100%;
+      width: 100%;
+    }
+    #status { margin-top: 20px; font-weight: 600; font-size: 0.95rem; }
+    .success { color: #2e7d32; }
+    .error { color: #c62828; }
+    .loading { color: #d81b60; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>📷 Notre Mariage</h1>
+    <p>Ajoutez vos meilleurs souvenirs de la journée à notre album photo !</p>
+
+    <div class="form-group">
+      <label for="prenom">Votre prénom (optionnel) :</label>
+      <input type="text" id="prenom" placeholder="ex: Julie">
+    </div>
+
+    <div class="upload-btn-wrapper">
+      <button class="btn">📸 Prendre / Choisir une photo</button>
+      <!-- Le tag capture="environment" force l'ouverture de l'appareil photo sur smartphone -->
+      <input type="file" id="photoInput" accept="image/*" capture="environment">
+    </div>
+
+    <div id="status"></div>
+  </div>
+
+  <script>
+    const photoInput = document.getElementById('photoInput');
+    const prenomInput = document.getElementById('prenom');
+    const statusDiv = document.getElementById('status');
+
+    photoInput.addEventListener('change', async () => {
+      const file = photoInput.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('photo', file);
+      formData.append('prenom', prenomInput.value);
+
+      statusDiv.className = 'loading';
+      statusDiv.innerText = 'Envoi de la photo en cours... ⏳';
+
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          statusDiv.className = 'success';
+          statusDiv.innerText = '✅ Photo envoyée avec succès ! Merci !';
+          photoInput.value = ''; // Réinitialise l'input
+        } else {
+          throw new Error(result.error || 'Erreur serveur');
+        }
+      } catch (err) {
+        statusDiv.className = 'error';
+        statusDiv.innerText = '❌ Erreur lors de l\'envoi. Réessayez.';
+      }
+    });
+  </script>
+
+</body>
+</html>
