@@ -6,15 +6,15 @@ const path = require('path');
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 
-// Configuration de Cloudinary (via les variables d'environnement sur Render)
+// Configuration de Cloudinary via les variables d'environnement sur Render
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Service des fichiers statiques (ex: index.html, logo.png, etc.)
-app.use(express.static(__dirname));
+// Indique à Express de servir les fichiers statiques (ex: logo, CSS) depuis le dossier "public"
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 // -------------------------------------------------------------
@@ -62,13 +62,15 @@ app.get('/api/photos', async (req, res) => {
   }
 });
 
-// Redirection par défaut vers index.html
+// -------------------------------------------------------------
+// 3. REDIRECTION PAR DÉFAUT VERS index.html DANS LE DOSSIER "public"
+// -------------------------------------------------------------
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Lancement du serveur sur le port attribué par Render
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
 });
