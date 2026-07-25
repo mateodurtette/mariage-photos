@@ -36,7 +36,7 @@
       max-width: 100px;
       height: auto;
       margin-bottom: 15px;
-      border-radius: 50%; /* Optionnel : rend l'image ronde si c'est un carré */
+      border-radius: 50%;
     }
 
     h1 { font-family: serif; color: #5a4a42; margin-bottom: 8px; font-size: 1.8rem; }
@@ -84,17 +84,54 @@
     .success { color: #2e7d32; }
     .error { color: #c62828; }
     .loading { color: #d81b60; }
+
+    /* Styles pour la section Cagnotte */
+    .divider {
+      margin: 30px 0 25px 0;
+      border: 0;
+      border-top: 1px dashed #d8cfc4;
+    }
+    .cagnotte-title {
+      font-family: serif;
+      color: #5a4a42;
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+    }
+    .cagnotte-text {
+      font-size: 0.88rem;
+      color: #776e65;
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+    .btn-leetchi {
+      display: inline-block;
+      text-decoration: none;
+      color: white;
+      background: #e02f5c;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      width: 100%;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 4px 10px rgba(224, 47, 92, 0.25);
+    }
+    .btn-leetchi:active {
+      background: #c8244e;
+      transform: scale(0.98);
+    }
   </style>
 </head>
 <body>
 
   <div class="card">
-    <!-- Image du logo ajoutée ici -->
+    <!-- Image du logo -->
     <img src="logo.png" alt="Logo Mariage" class="logo">
     
     <h1>Lauriane & Matéo</h1>
     <p>Ajoutez vos meilleurs souvenirs de la journée à notre album photo !</p>
 
+    <!-- SECTION ENVOI DE PHOTOS -->
     <div class="form-group">
       <label for="prenom">Votre prénom (optionnel) :</label>
       <input type="text" id="prenom" placeholder="ex: Julie">
@@ -106,6 +143,22 @@
     </div>
 
     <div id="status"></div>
+
+    <!-- SÉPARATEUR VISUEL -->
+    <hr class="divider">
+
+    <!-- SECTION CAGNOTTE LEETCHI -->
+    <h2 class="cagnotte-title">Cagnotte de mariage 🎁</h2>
+    <p class="cagnotte-text">
+      Votre présence est notre plus beau cadeau. Pour celles et ceux qui souhaitent participer à nos projets ou donner à distance :
+    </p>
+    
+    <a href="https://www.leetchi.com/fr/c/lauriane-mateo-2607997?u=58916c81-2314-4fac-a648-cc3e223ad341&utm_source=copylink&utm_medium=social_sharing&utm_id=post_creation" 
+       target="_blank" 
+       rel="noopener noreferrer" 
+       class="btn-leetchi">
+       💝 Participer sur Leetchi
+    </a>
   </div>
 
   <script>
