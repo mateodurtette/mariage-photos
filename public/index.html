@@ -15,7 +15,7 @@
       background: #fdfbf7;
       color: #333;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       min-height: 100vh;
       padding: 20px;
@@ -25,13 +25,13 @@
       padding: 30px 20px;
       border-radius: 20px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-      max-width: 400px;
+      max-width: 450px;
       width: 100%;
       text-align: center;
       border: 1px solid #eae5d9;
+      margin-bottom: 30px;
     }
     
-    /* Style pour ajuster le logo en haut de la carte */
     .logo {
       max-width: 100px;
       height: auto;
@@ -85,7 +85,7 @@
     .error { color: #c62828; }
     .loading { color: #d81b60; }
 
-    /* Styles pour la section Cagnotte */
+    /* Styles Cagnotte */
     .divider {
       margin: 30px 0 25px 0;
       border: 0;
@@ -116,16 +116,58 @@
       transition: background 0.2s, transform 0.1s;
       box-shadow: 0 4px 10px rgba(224, 47, 92, 0.25);
     }
-    .btn-leetchi:active {
-      background: #c8244e;
-      transform: scale(0.98);
+
+    /* STYLES GALERIE PHOTOS */
+    .gallery-container {
+      max-width: 800px;
+      width: 100%;
+      text-align: center;
+    }
+    .gallery-title {
+      font-family: serif;
+      color: #5a4a42;
+      font-size: 1.6rem;
+      margin-bottom: 15px;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 12px;
+      padding: 10px;
+    }
+    .gallery-grid img {
+      width: 100%;
+      height: 130px;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .gallery-grid img:hover {
+      transform: scale(1.04);
+    }
+
+    /* Modal / Popup pour voir les photos en grand */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal img {
+      max-width: 90%;
+      max-height: 85vh;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
 
   <div class="card">
-    <!-- Image du logo -->
     <img src="logo.png" alt="Logo Mariage" class="logo">
     
     <h1>Lauriane & Matéo</h1>
@@ -161,11 +203,45 @@
     </a>
   </div>
 
+  <!-- SECTION GALERIE PHOTO EN DIRECT -->
+  <div class="gallery-container">
+    <h2 class="gallery-title">Galerie photo 🖼️</h2>
+    <div id="galleryGrid" class="gallery-grid">
+      <p style="grid-column: 1/-1; color: #888;">Chargement des photos...</p>
+    </div>
+  </div>
+
+  <!-- POPUP D'AGRANDISSEMENT PHOTO -->
+  <div id="photoModal" class="modal" onclick="closeModal()">
+    <img id="modalImg" src="" alt="Photo agrandie">
+  </div>
+
   <script>
     const photoInput = document.getElementById('photoInput');
     const prenomInput = document.getElementById('prenom');
     const statusDiv = document.getElementById('status');
+    const galleryGrid = document.getElementById('galleryGrid');
 
+    // 1. Fonction pour charger la galerie
+    async function loadGallery() {
+      try {
+        const response = await fetch('/api/photos');
+        const data = await response.json();
+
+        if (data.success && data.photos.length > 0) {
+          galleryGrid.innerHTML = data.photos.map(url => `
+            <img src="${url}" alt="Souvenir de mariage" onclick="openModal('${url}')">
+          `).join('');
+        } else {
+          galleryGrid.innerHTML = '<p style="grid-column: 1/-1; color: #888;">Aucune photo déposée pour le moment. Soyez le premier !</p>';
+        }
+      } catch (err) {
+        console.error('Erreur galerie:', err);
+        galleryGrid.innerHTML = '<p style="grid-column: 1/-1; color: #888;">Impossible de charger la galerie.</p>';
+      }
+    }
+
+    // 2. Gestion de l'envoi de photos
     photoInput.addEventListener('change', async () => {
       const files = photoInput.files;
       if (!files || files.length === 0) return;
@@ -190,30 +266,40 @@
           });
 
           const result = await response.json();
-
           if (response.ok && result.success) {
             successCount++;
           }
         } catch (err) {
-          console.error('Erreur d\'envoi pour le fichier', file.name, err);
+          console.error('Erreur d\'envoi :', err);
         }
       }
 
       if (successCount === totalFiles) {
         statusDiv.className = 'success';
         statusDiv.innerText = totalFiles > 1 
-          ? `✅ Les ${totalFiles} photos ont été envoyées avec succès ! Merci !`
+          ? `✅ Les ${totalFiles} photos ont été envoyées ! Merci !`
           : '✅ Photo envoyée avec succès ! Merci !';
-      } else if (successCount > 0) {
-        statusDiv.className = 'success';
-        statusDiv.innerText = `⚠️ ${successCount}/${totalFiles} photos envoyées avec succès.`;
       } else {
         statusDiv.className = 'error';
         statusDiv.innerText = '❌ Erreur lors de l\'envoi. Réessayez.';
       }
 
       photoInput.value = '';
+      loadGallery(); // Rafraîchit automatiquement la galerie après l'envoi
     });
+
+    // 3. Fonctions pour la fenêtre d'agrandissement photo (Modal)
+    function openModal(url) {
+      document.getElementById('modalImg').src = url;
+      document.getElementById('photoModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('photoModal').style.display = 'none';
+    }
+
+    // Charge la galerie dès le premier chargement de la page
+    loadGallery();
   </script>
 
 </body>
